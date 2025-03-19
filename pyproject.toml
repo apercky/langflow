@@ -117,6 +117,8 @@ dependencies = [
     "ruff>=0.9.7",
     "langchain-graph-retriever==0.6.1",
     "graph-retriever==0.6.1",
+    "psycopg>=3.2.6",
+    "psycopg-binary>=3.2.6",
 ]
 
 [dependency-groups]
