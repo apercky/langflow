@@ -2,14 +2,10 @@ import { ProfileIcon } from "@/components/core/appHeaderComponent/components/Pro
 import { ContentBlockDisplay } from "@/components/core/chatComponents/ContentBlockDisplay";
 import { useUpdateMessage } from "@/controllers/API/queries/messages";
 import { CustomProfileIcon } from "@/customization/components/custom-profile-icon";
-import {
-  ENABLE_DATASTAX_LANGFLOW,
-  ENABLE_PUBLISH,
-} from "@/customization/feature-flags";
+import { ENABLE_DATASTAX_LANGFLOW } from "@/customization/feature-flags";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import useFlowStore from "@/stores/flowStore";
 import { useUtilityStore } from "@/stores/utilityStore";
-import { ChatMessageType } from "@/types/chat";
 import Convert from "ansi-to-html";
 import { useEffect, useRef, useState } from "react";
 import Robot from "../../../../../assets/robot.png";
@@ -53,6 +49,8 @@ export default function ChatMessage({
   const [editMessage, setEditMessage] = useState(false);
   const [showError, setShowError] = useState(false);
   const isBuilding = useFlowStore((state) => state.isBuilding);
+
+  const isAudioMessage = chat.category === "audio";
 
   useEffect(() => {
     const chatMessageString = chat.message ? chat.message.toString() : "";
@@ -295,7 +293,7 @@ export default function ChatMessage({
             <div>
               <div
                 className={cn(
-                  "flex max-w-full items-baseline gap-3 truncate pb-2 text-[14px] font-semibold",
+                  "flex max-w-full items-baseline gap-3 truncate pb-2 text-sm font-semibold",
                 )}
                 style={
                   chat.properties?.text_color
@@ -306,9 +304,19 @@ export default function ChatMessage({
                   "sender_name_" + chat.sender_name?.toLocaleLowerCase()
                 }
               >
-                {chat.sender_name}
+                <span className="flex items-center gap-2">
+                  {chat.sender_name}
+                  {isAudioMessage && (
+                    <div className="flex h-5 w-5 items-center justify-center rounded-sm bg-muted">
+                      <ForwardedIconComponent
+                        name="mic"
+                        className="h-3 w-3 text-muted-foreground"
+                      />
+                    </div>
+                  )}
+                </span>
                 {chat.properties?.source && !playgroundPage && (
-                  <div className="text-[13px] font-normal text-muted-foreground">
+                  <div className="text-mmd font-normal text-muted-foreground">
                     {chat.properties?.source.source}
                   </div>
                 )}
@@ -319,7 +327,6 @@ export default function ChatMessage({
                 playgroundPage={playgroundPage}
                 contentBlocks={chat.content_blocks}
                 isLoading={
-                  chatMessage === "" &&
                   chat.properties?.state === "partial" &&
                   isBuilding &&
                   lastMessage
@@ -379,6 +386,7 @@ export default function ChatMessage({
                               />
                             ) : (
                               <MarkdownField
+                                isAudioMessage={isAudioMessage}
                                 chat={chat}
                                 isEmpty={isEmpty}
                                 chatMessage={chatMessage}
@@ -407,9 +415,10 @@ export default function ChatMessage({
                   ) : (
                     <>
                       <div
-                        className={`w-full items-baseline whitespace-pre-wrap break-words text-[14px] font-normal ${
-                          isEmpty ? "text-muted-foreground" : "text-primary"
-                        }`}
+                        className={cn(
+                          "w-full items-baseline whitespace-pre-wrap break-words text-sm font-normal",
+                          isEmpty ? "text-muted-foreground" : "text-primary",
+                        )}
                         data-testid={`chat-message-${chat.sender_name}-${chatMessage}`}
                       >
                         {isEmpty ? EMPTY_INPUT_SEND_MESSAGE : decodedMessage}
@@ -441,6 +450,7 @@ export default function ChatMessage({
                   isBotMessage={!chat.isSend}
                   onEvaluate={handleEvaluateAnswer}
                   evaluation={chat.properties?.positive_feedback}
+                  isAudioMessage={isAudioMessage}
                 />
               </div>
             </div>
