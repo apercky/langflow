@@ -1,12 +1,14 @@
+import { useState } from "react";
+import ShadTooltip from "@/components/common/shadTooltipComponent";
 import { ICON_STROKE_WIDTH } from "@/constants/constants";
+import { ENABLE_MCP_COMPOSER } from "@/customization/feature-flags";
 import ToolsModal from "@/modals/toolsModal";
 import { cn, testIdCase } from "@/utils/utils";
-import { useState } from "react";
 import { ForwardedIconComponent } from "../../../../common/genericIconComponent";
 import { Badge } from "../../../../ui/badge";
 import { Button } from "../../../../ui/button";
 import { Skeleton } from "../../../../ui/skeleton";
-import { InputProps, ToolsComponentType } from "../../types";
+import type { InputProps, ToolsComponentType } from "../../types";
 
 export default function ToolsComponent({
   description,
@@ -15,6 +17,7 @@ export default function ToolsComponent({
   id = "",
   handleOnNewValue,
   isAction = false,
+  placeholder,
   button_description,
   title,
   icon,
@@ -46,41 +49,59 @@ export default function ToolsComponent({
         disabled && "cursor-not-allowed",
       )}
     >
-      {value && (
-        <ToolsModal
-          open={isModalOpen}
-          setOpen={setIsModalOpen}
-          isAction={isAction}
-          description={description}
-          rows={value}
-          handleOnNewValue={handleOnNewValue}
-          title={title}
-          icon={icon}
-        />
-      )}
+      <ToolsModal
+        open={isModalOpen}
+        placeholder={placeholder || ""}
+        setOpen={setIsModalOpen}
+        isAction={isAction}
+        description={description}
+        rows={value || []}
+        handleOnNewValue={handleOnNewValue}
+        title={title}
+        icon={icon}
+      />
       <div
-        className="relative flex w-full items-center gap-3"
+        className="relative flex flex-col w-full gap-3"
         data-testid={"div-" + id}
       >
-        {(visibleActions.length > 0 || isAction) && (
-          <Button
-            variant={"ghost"}
-            disabled={!value || disabled}
-            size={"iconMd"}
-            className={cn(
-              "absolute -top-8 right-0 font-semibold text-muted-foreground group-hover:text-primary",
-            )}
-            data-testid="button_open_actions"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <ForwardedIconComponent
-              name="Settings2"
-              className="icon-size"
-              strokeWidth={ICON_STROKE_WIDTH}
-            />
-            {button_description}
-          </Button>
-        )}
+        <div className="flex flex-row justify-between">
+          <div className="flex flex-row justify-between">
+            <ShadTooltip
+              content="Flows in this project can be exposed as callable MCP tools."
+              side="right"
+            >
+              <div
+                className={cn(
+                  "flex items-center hover:cursor-help",
+                  !ENABLE_MCP_COMPOSER && "text-mmd",
+                )}
+              >
+                Flows/Tools
+                <ForwardedIconComponent
+                  name="info"
+                  className="ml-1.5 h-4 w-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
+              </div>
+            </ShadTooltip>
+          </div>
+          {(visibleActions.length > 0 || isAction) && (
+            <Button
+              variant={ENABLE_MCP_COMPOSER ? "outline" : "ghost"}
+              disabled={!value || disabled}
+              size="sm"
+              data-testid="button_open_actions"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <ForwardedIconComponent
+                name={ENABLE_MCP_COMPOSER ? "wrench" : "Settings2"}
+                className="icon-size"
+                strokeWidth={ICON_STROKE_WIDTH}
+              />
+              {button_description}
+            </Button>
+          )}
+        </div>
         {!value ? (
           <div className="flex w-full flex-wrap gap-1 overflow-hidden py-1.5">
             {[...Array(4)].map((_, index) => (
@@ -124,7 +145,7 @@ export default function ToolsComponent({
 
         {visibleActions.length === 0 && !isAction && value && (
           <Button
-            disabled={disabled}
+            disabled={disabled || value.length === 0}
             size={editNode ? "xs" : "default"}
             className={
               "w-full " +
@@ -132,7 +153,12 @@ export default function ToolsComponent({
             }
             onClick={() => setIsModalOpen(true)}
           >
-            <span>Select actions</span>
+            <span>
+              {placeholder ||
+                (value.length === 0
+                  ? "No actions available"
+                  : "Select actions")}
+            </span>
           </Button>
         )}
       </div>

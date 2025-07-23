@@ -1,16 +1,18 @@
+import { useMemo, useRef, useState } from "react";
 import { GRADIENT_CLASS_DISABLED } from "@/constants/constants";
+import { customGetHostProtocol } from "@/customization/utils/custom-get-host-protocol";
 import useAlertStore from "@/stores/alertStore";
 import useFlowStore from "@/stores/flowStore";
-import { useMemo, useRef, useState } from "react";
 import { cn } from "../../../../../utils/utils";
 import IconComponent from "../../../../common/genericIconComponent";
 import { Input } from "../../../../ui/input";
-import { InputProps, TextAreaComponentType } from "../../types";
+import type { InputProps, TextAreaComponentType } from "../../types";
 
 const BACKEND_URL = "BACKEND_URL";
 const MCP_SSE_VALUE = "MCP_SSE";
-const URL_WEBHOOK = `${window.location.protocol}//${window.location.host}/api/v1/webhook/`;
-const URL_MCP_SSE = `${window.location.protocol}//${window.location.host}/api/v1/mcp/sse`;
+const { protocol, host } = customGetHostProtocol();
+const URL_WEBHOOK = `${protocol}//${host}/api/v1/webhook/`;
+const URL_MCP_SSE = `${protocol}//${host}/api/v1/mcp/sse`;
 
 const inputClasses = {
   base: ({ isFocused }: { isFocused: boolean }) =>

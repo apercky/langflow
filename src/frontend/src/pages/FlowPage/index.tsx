@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useBlocker, useParams } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useGetFlow } from "@/controllers/API/queries/flows/use-get-flow";
 import { useGetTypes } from "@/controllers/API/queries/flows/use-get-types";
@@ -8,12 +10,10 @@ import { SaveChangesModal } from "@/modals/saveChangesModal";
 import useAlertStore from "@/stores/alertStore";
 import { useTypesStore } from "@/stores/typesStore";
 import { customStringify } from "@/utils/reactflowUtils";
-import { useEffect, useState } from "react";
-import { useBlocker, useParams } from "react-router-dom";
 import useFlowStore from "../../stores/flowStore";
 import useFlowsManagerStore from "../../stores/flowsManagerStore";
-import Page from "./components/PageComponent";
 import { FlowSidebarComponent } from "./components/flowSidebarComponent";
+import Page from "./components/PageComponent";
 
 export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   const types = useTypesStore((state) => state.types);
@@ -42,8 +42,6 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
 
   const flows = useFlowsManagerStore((state) => state.flows);
   const currentFlowId = useFlowsManagerStore((state) => state.currentFlowId);
-
-  const flowToCanvas = useFlowsManagerStore((state) => state.flowToCanvas);
 
   const updatedAt = currentSavedFlow?.updated_at;
   const autoSaving = useFlowsManagerStore((state) => state.autoSaving);
@@ -102,7 +100,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   // Set flow tab id
   useEffect(() => {
     const awaitgetTypes = async () => {
-      if (flows && currentFlowId === "") {
+      if (flows && currentFlowId === "" && Object.keys(types).length > 0) {
         const isAnExistingFlow = flows.find((flow) => flow.id === id);
 
         if (!isAnExistingFlow) {
@@ -112,19 +110,19 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
 
         const isAnExistingFlowId = isAnExistingFlow.id;
 
-        flowToCanvas
-          ? setCurrentFlow(flowToCanvas)
-          : getFlowToAddToCanvas(isAnExistingFlowId);
+        await getFlowToAddToCanvas(isAnExistingFlowId);
       }
     };
     awaitgetTypes();
-  }, [id, flows, currentFlowId, flowToCanvas]);
+  }, [id, flows, currentFlowId, types]);
 
   useEffect(() => {
     setOnFlowPage(true);
 
     return () => {
       setOnFlowPage(false);
+      console.warn("unmounting");
+
       setCurrentFlow(undefined);
     };
   }, [id]);

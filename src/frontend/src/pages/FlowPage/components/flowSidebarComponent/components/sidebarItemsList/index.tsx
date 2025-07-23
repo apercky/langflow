@@ -1,11 +1,11 @@
+import { useMemo } from "react";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import useFlowStore from "@/stores/flowStore";
 import { checkChatInput, checkWebhookInput } from "@/utils/reactflowUtils";
 import { removeCountFromString } from "@/utils/utils";
-import { useMemo } from "react";
 import { disableItem } from "../../helpers/disable-item";
 import { getDisabledTooltip } from "../../helpers/get-disabled-tooltip";
-import { UniqueInputsComponents } from "../../types";
+import type { UniqueInputsComponents } from "../../types";
 import SidebarDraggableComponent from "../sidebarDraggableComponent";
 
 const SidebarItemsList = ({
@@ -98,10 +98,6 @@ const UniqueInputsDraggableComponent = ({
   const chatInputAdded = useMemo(() => checkChatInput(nodes), [nodes]);
   const webhookInputAdded = useMemo(() => checkWebhookInput(nodes), [nodes]);
   const uniqueInputsComponents: UniqueInputsComponents = useMemo(() => {
-    console.log("uniqueInputsComponents", {
-      chatInputAdded,
-      webhookInputAdded,
-    });
     return {
       chatInput: chatInputAdded,
       webhookInput: webhookInputAdded,

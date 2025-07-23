@@ -1,21 +1,21 @@
-import { handleOnNewValueType } from "@/CustomNodes/hooks/use-handle-new-value";
-import { ReactFlowJsonObject } from "@xyflow/react";
-import { ReactElement, ReactNode } from "react";
-import { InputOutput } from "../../constants/enums";
-import {
+import type { ReactFlowJsonObject } from "@xyflow/react";
+import type { ReactElement, ReactNode } from "react";
+import type { handleOnNewValueType } from "@/CustomNodes/hooks/use-handle-new-value";
+import type { InputOutput } from "../../constants/enums";
+import type {
   APIClassType,
   APITemplateType,
   InputFieldType,
   OutputFieldProxyType,
 } from "../api";
-import { ChatMessageType } from "../chat";
-import {
+import type { ChatMessageType } from "../chat";
+import type { sourceHandleType, targetHandleType } from "./../flow/index";
+import type {
   AllNodeType,
   FlowStyleType,
   FlowType,
   NodeDataType,
 } from "../flow/index";
-import { sourceHandleType, targetHandleType } from "./../flow/index";
 export type InputComponentType = {
   name?: string;
   autoFocus?: boolean;
@@ -83,7 +83,7 @@ export type ParameterComponentType = {
   required?: boolean;
   name?: string;
   tooltipTitle: string | undefined;
-  optionalHandle?: Array<String> | null;
+  optionalHandle?: Array<string> | null;
   info?: string;
   proxy?: { field: string; id: string };
   showNode?: boolean;
@@ -110,6 +110,8 @@ export type NodeOutputFieldComponentType = {
   isToolMode?: boolean;
   showHiddenOutputs?: boolean;
   hidden?: boolean;
+  outputs?: any;
+  handleSelectOutput?: (output: any) => void;
 };
 
 export type NodeInputFieldComponentType = {
@@ -121,7 +123,7 @@ export type NodeInputFieldComponentType = {
   type: string | undefined;
   name: string;
   required: boolean;
-  optionalHandle: Array<String> | undefined | null;
+  optionalHandle: Array<string> | undefined | null;
   lastInput?: boolean;
   info: string;
   proxy: { field: string; id: string } | undefined;
@@ -145,6 +147,9 @@ export type outputComponentType = {
   name: string;
   proxy?: OutputFieldProxyType;
   isToolMode?: boolean;
+  outputs?: any;
+  handleSelectOutput?: (output: any) => void;
+  outputName?: string;
 };
 
 export type DisclosureComponentType = {
@@ -303,6 +308,8 @@ export type InputProps = {
   description: string | null;
   endpointName?: string | null;
   maxLength?: number;
+  descriptionMaxLength?: number;
+  minLength?: number;
   setName?: (name: string) => void;
   setDescription?: (description: string) => void;
   setEndpointName?: (endpointName: string) => void;
@@ -471,10 +478,6 @@ export type nodeGroupedObjType = {
   node: string[] | string;
 };
 
-type test = {
-  [char: string]: string;
-};
-
 export type tweakType = Array<{
   [key: string]: {
     [char: string]: string;
@@ -544,7 +547,7 @@ export type ChatInputType = {
   }: {
     repeat: number;
     files?: string[];
-  }) => void;
+  }) => Promise<void>;
   playgroundPage: boolean;
 };
 
@@ -583,6 +586,8 @@ export type nodeToolbarPropsType = {
   openAdvancedModal?: boolean;
   onCloseAdvancedModal?: (close: boolean) => void;
   isOutdated: boolean;
+  isUserEdited: boolean;
+  hasBreakingChange: boolean;
   updateNode: () => void;
   closeToolbar?: () => void;
   setOpenShowMoreOptions?: (open: boolean) => void;
@@ -734,7 +739,6 @@ export type buttonBoxPropsType = {
 export type FlowSettingsPropsType = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  details?: boolean;
   flowData?: FlowType;
 };
 
@@ -832,7 +836,7 @@ export type chatViewProps = {
   }: {
     repeat: number;
     files?: string[];
-  }) => void;
+  }) => Promise<void>;
   visibleSession?: string;
   focusChat?: string;
   closeChat?: () => void;
